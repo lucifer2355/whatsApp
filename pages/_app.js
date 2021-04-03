@@ -2,6 +2,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "../firebase";
 
 import "../styles/globals.css";
+import Login from "./login";
 
 function MyApp({ Component, pageProps }) {
   const [user] = useAuthState(auth);
