@@ -1,4 +1,5 @@
 import React from "react";
+import * as emailValidator from "email-validator";
 import styled from "styled-components";
 import { Avatar, Button, IconButton } from "@material-ui/core";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
@@ -52,6 +53,18 @@ const SidebarButton = styled(Button)`
 `;
 
 const Sidebar = () => {
+  const createChat = () => {
+    const input = prompt(
+      "Please enter an email address for the user you wise to chat with"
+    );
+
+    if (!input) return null;
+
+    if (emailValidator.validate(input)) {
+      //! We need to add the chat into the DB 'chats' collection
+    }
+  };
+
   return (
     <Container>
       <Header>
@@ -72,7 +85,7 @@ const Sidebar = () => {
         <SearchInput placeholder='Search in chats' />
       </Search>
 
-      <SidebarButton>Start a new chat</SidebarButton>
+      <SidebarButton onClick={createChat}>Start a new chat</SidebarButton>
 
       {/* List of chats */}
     </Container>
