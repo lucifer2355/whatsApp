@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Avatar, IconButton } from "@material-ui/core";
+import { Avatar, Button, IconButton } from "@material-ui/core";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import ChatIcon from "@material-ui/icons/Chat";
 import SearchIcon from "@material-ui/icons/Search";
@@ -42,6 +42,15 @@ const SearchInput = styled.input`
   border-width: 0;
 `;
 
+const SidebarButton = styled(Button)`
+  width: 100%;
+
+  &&& {
+    border-top: 1px solid whitesmoke;
+    border-bottom: 1px solid whitesmoke;
+  }
+`;
+
 const Sidebar = () => {
   return (
     <Container>
@@ -62,6 +71,10 @@ const Sidebar = () => {
         <SearchIcon />
         <SearchInput placeholder='Search in chats' />
       </Search>
+
+      <SidebarButton>Start a new chat</SidebarButton>
+
+      {/* List of chats */}
     </Container>
   );
 };
