@@ -1,12 +1,23 @@
 import React from "react";
 import styled from "styled-components";
+import { Avatar } from "@material-ui/core";
 
 const Container = styled.div``;
+
+const Header = styled.div``;
+
+const UserAvatar = styled(Avatar)``;
+
+const IconContainer = styled.div``;
 
 const Sidebar = () => {
   return (
     <Container>
-      <h1>Sidebar</h1>
+      <Header>
+        <UserAvatar />
+
+        <IconContainer></IconContainer>
+      </Header>
     </Container>
   );
 };
