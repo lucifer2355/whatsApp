@@ -9,6 +9,7 @@ import ChatIcon from "@material-ui/icons/Chat";
 import SearchIcon from "@material-ui/icons/Search";
 
 import { auth, db } from "../firebase";
+import Chat from "./Chat";
 
 const Container = styled.div``;
 
@@ -111,7 +112,7 @@ const Sidebar = () => {
       <SidebarButton onClick={createChat}>Start a new chat</SidebarButton>
 
       {/* List of chats */}
-      {chatsSnapshort?.doc.map((chat) => {
+      {chatsSnapshort?.docs.map((chat) => {
         <Chat key={chat.id} id={chat.id} user={chat.data().users} />;
       })}
     </Container>
