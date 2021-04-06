@@ -7,6 +7,7 @@ import { Avatar, IconButton } from "@material-ui/core";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import AttachFileIcon from "@material-ui/icons/AttachFile";
 import InsertEmoticonIcon from "@material-ui/icons/InsertEmoticon";
+import MicIcon from "@material-ui/icons/Mic";
 
 import { auth, db } from "../firebase";
 
@@ -30,7 +31,6 @@ const HeaderInformation = styled.div`
 
   > h3 {
     margin-bottom: 14px;
-    color: gray;
   }
 
   > p {
@@ -43,7 +43,28 @@ const HeaderIcons = styled.div``;
 
 const MessageContainer = styled.div``;
 
-const InputContainer = styled.form``;
+const EndOfMessage = styled.div``;
+
+const InputContainer = styled.form`
+  display: flex;
+  align-items: center;
+  position: sticky;
+  padding: 10px;
+  bottom: 0;
+  background-color: white;
+  z-index: 10;
+`;
+
+const Input = styled.input`
+  flex: 1;
+  outline: 0;
+  border: none;
+  border-radius: 10px;
+  padding: 20px;
+  margin-right: 15px;
+  margin-left: 15px;
+  background-color: whitesmoke;
+`;
 
 const ChatScreen = ({ chat, message }) => {
   const [user] = useAuthState(auth);
@@ -101,6 +122,7 @@ const ChatScreen = ({ chat, message }) => {
       <InputContainer>
         <InsertEmoticonIcon />
         <Input />
+        <MicIcon />
       </InputContainer>
     </Container>
   );
