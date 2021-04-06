@@ -6,6 +6,7 @@ import styled from "styled-components";
 import { Avatar, IconButton } from "@material-ui/core";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import AttachFileIcon from "@material-ui/icons/AttachFile";
+import InsertEmoticonIcon from "@material-ui/icons/InsertEmoticon";
 
 import { auth, db } from "../firebase";
 
@@ -42,6 +43,8 @@ const HeaderIcons = styled.div``;
 
 const MessageContainer = styled.div``;
 
+const InputContainer = styled.form``;
+
 const ChatScreen = ({ chat, message }) => {
   const [user] = useAuthState(auth);
   const router = useRouter();
@@ -53,7 +56,23 @@ const ChatScreen = ({ chat, message }) => {
       .orderBy("timestamp", "asc")
   );
 
-  const showMessages = () => {};
+  const showMessages = () => {
+    if (messagesSnapshort) {
+      return messagesSnapshort.docs.map((message) => (
+        <Message
+          key={message.id}
+          user={message.data().user}
+          message={{
+            ...message.data(),
+            timestamp: message
+              .data()
+              .timestamp?.toDate()
+              .getTime(),
+          }}
+        />
+      ));
+    }
+  };
 
   return (
     <Container>
@@ -75,9 +94,14 @@ const ChatScreen = ({ chat, message }) => {
       </Header>
 
       <MessageContainer>
-        {/* //* Show messages */}
+        {showMessages()}
         <EndOfMessage />
       </MessageContainer>
+
+      <InputContainer>
+        <InsertEmoticonIcon />
+        <Input />
+      </InputContainer>
     </Container>
   );
 };
