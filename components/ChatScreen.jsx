@@ -10,6 +10,7 @@ import InsertEmoticonIcon from "@material-ui/icons/InsertEmoticon";
 import MicIcon from "@material-ui/icons/Mic";
 
 import { auth, db } from "../firebase";
+import { useState } from "react";
 
 const Container = styled.div``;
 
@@ -41,9 +42,13 @@ const HeaderInformation = styled.div`
 
 const HeaderIcons = styled.div``;
 
-const MessageContainer = styled.div``;
-
 const EndOfMessage = styled.div``;
+
+const MessageContainer = styled.div`
+  padding: 30px;
+  background-color: #e5ded8;
+  min-height: 90vh;
+`;
 
 const InputContainer = styled.form`
   display: flex;
@@ -76,6 +81,7 @@ const ChatScreen = ({ chat, message }) => {
       .collection("messages")
       .orderBy("timestamp", "asc")
   );
+  const [input, setInput] = useState();
 
   const showMessages = () => {
     if (messagesSnapshort) {
@@ -93,6 +99,10 @@ const ChatScreen = ({ chat, message }) => {
         />
       ));
     }
+  };
+
+  const sendMessage = (e) => {
+    e.preventDefault();
   };
 
   return (
@@ -121,7 +131,10 @@ const ChatScreen = ({ chat, message }) => {
 
       <InputContainer>
         <InsertEmoticonIcon />
-        <Input />
+        <Input value={input} onChange={(e) => setInput(e.target.value)} />
+        <button hidden disabled={!input} type='submit' onClick={sendMessage}>
+          Send Message
+        </button>
         <MicIcon />
       </InputContainer>
     </Container>
