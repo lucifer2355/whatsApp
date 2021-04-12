@@ -3,10 +3,10 @@ import styled from "styled-components";
 
 const Container = styled.div``;
 
-const Message = () => {
+const Message = ({ user, message }) => {
   return (
     <Container>
-      <p>Hello</p>
+      <p>{message}</p>
     </Container>
   );
 };

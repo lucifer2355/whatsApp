@@ -12,6 +12,7 @@ import MicIcon from "@material-ui/icons/Mic";
 
 import { auth, db } from "../firebase";
 import { useState } from "react";
+import Message from "./Message";
 
 const Container = styled.div``;
 
@@ -72,7 +73,7 @@ const Input = styled.input`
   background-color: whitesmoke;
 `;
 
-const ChatScreen = ({ chat, message }) => {
+const ChatScreen = ({ chat, messages }) => {
   const [user] = useAuthState(auth);
   const router = useRouter();
   const [messagesSnapshort] = useCollection(
@@ -98,6 +99,10 @@ const ChatScreen = ({ chat, message }) => {
               .getTime(),
           }}
         />
+      ));
+    } else {
+      return JSON.parse(messages).map((message) => (
+        <Message key={message.id} user={message.user} message={message} />
       ));
     }
   };
