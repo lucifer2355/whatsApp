@@ -1,93 +1,48 @@
-import React from "react";
+import { Avatar, IconButton } from "@material-ui/core";
 import { useRouter } from "next/router";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { useCollection } from "react-firebase-hooks/firestore";
-import firebase from "firebase";
 import styled from "styled-components";
-import { Avatar, IconButton } from "@material-ui/core";
+import { auth, db } from "../firebase";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import AttachFileIcon from "@material-ui/icons/AttachFile";
-import InsertEmoticonIcon from "@material-ui/icons/InsertEmoticon";
-import MicIcon from "@material-ui/icons/Mic";
-
-import { auth, db } from "../firebase";
-import { useState } from "react";
+import { useCollection } from "react-firebase-hooks/firestore";
+import { InsertEmoticon, Mic } from "@material-ui/icons";
 import Message from "./Message";
-
-const Container = styled.div``;
-
-const Header = styled.div`
-  position: sticky;
-  background-color: white;
-  z-index: 10;
-  top: 0;
-  display: flex;
-  padding: 11px;
-  height: 80px;
-  align-items: center;
-  border-bottom: 1px solid whitesmoke;
-`;
-
-const HeaderInformation = styled.div`
-  margin-left: 15px;
-  flex: 1;
-
-  > h3 {
-    margin-bottom: 14px;
-  }
-
-  > p {
-    font-size: 14px;
-    color: gray;
-  }
-`;
-
-const HeaderIcons = styled.div``;
-
-const EndOfMessage = styled.div``;
-
-const MessageContainer = styled.div`
-  padding: 30px;
-  background-color: #e5ded8;
-  min-height: 90vh;
-`;
-
-const InputContainer = styled.form`
-  display: flex;
-  align-items: center;
-  position: sticky;
-  padding: 10px;
-  bottom: 0;
-  background-color: white;
-  z-index: 10;
-`;
-
-const Input = styled.input`
-  flex: 1;
-  outline: 0;
-  border: none;
-  border-radius: 10px;
-  padding: 20px;
-  margin-right: 15px;
-  margin-left: 15px;
-  background-color: whitesmoke;
-`;
+import { useRef, useState } from "react";
+import firebase from "firebase";
+import getRecipientEmail from "../utils/getRecipientEmail";
+// import TimeAgo from "timeago-react";
 
 const ChatScreen = ({ chat, messages }) => {
   const [user] = useAuthState(auth);
+  const [input, setInput] = useState("");
   const router = useRouter();
-  const [messagesSnapshort] = useCollection(
+  const [messagesSnapshot] = useCollection(
     db
       .collection("chats")
       .doc(router.query.id)
       .collection("messages")
       .orderBy("timestamp", "asc")
   );
-  const [input, setInput] = useState();
+
+  const [recipientSnapshot] = useCollection(
+    db
+      .collection("users")
+      .where("email", "==", getRecipientEmail(chat.users, user))
+  );
+
+  const endOfMessagesRef = useRef(null);
+
+  const scrollToBottom = () => {
+    endOfMessagesRef.current.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
 
   const showMessages = () => {
-    if (messagesSnapshort) {
-      return messagesSnapshort.docs.map((message) => (
+    if (messagesSnapshot) {
+      return messagesSnapshot.docs.map((message) => (
         <Message
           key={message.id}
           user={message.data().user}
@@ -110,11 +65,12 @@ const ChatScreen = ({ chat, messages }) => {
   const sendMessage = (e) => {
     e.preventDefault();
 
+    // Update the last seen...
     db.collection("users")
       .doc(user.uid)
       .set(
         {
-          lastSceen: firebase.firestore.FieldValue.serverTimestamp(),
+          lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
         },
         { merge: true }
       );
@@ -130,21 +86,44 @@ const ChatScreen = ({ chat, messages }) => {
       });
 
     setInput("");
+
+    scrollToBottom();
   };
+
+  const recipient = recipientSnapshot?.docs?.[0]?.data();
+  const recipientEmail = getRecipientEmail(chat.users, user);
 
   return (
     <Container>
       <Header>
-        <Avatar />
+        {recipient ? (
+          <Avatar src={recipient?.photoURL} />
+        ) : (
+          <Avatar>{recipientEmail[0]}</Avatar>
+        )}
 
-        <HeaderInformation>
-          <h3>Rec Email</h3>
-          <p>Last seen...</p>
-        </HeaderInformation>
+        {/* <HeaderInformation>
+          <h3>{recipientEmail}</h3>
+
+          {recipientSnapshot ? (
+            <p>
+              Last active:{" "}
+              {recipient?.lastSeen?.toDate() ? (
+                <TimeAgo datetime={recipient?.lastSeen.toDate()} />
+              ) : (
+                "Unavailable"
+              )}
+            </p>
+          ) : (
+            <p>Loading last active ...""</p>
+          )}
+        </HeaderInformation> */}
+
         <HeaderIcons>
           <IconButton>
             <AttachFileIcon />
           </IconButton>
+
           <IconButton>
             <MoreVertIcon />
           </IconButton>
@@ -153,19 +132,78 @@ const ChatScreen = ({ chat, messages }) => {
 
       <MessageContainer>
         {showMessages()}
-        <EndOfMessage />
+        <EndOfMessage ref={endOfMessagesRef} />
       </MessageContainer>
 
       <InputContainer>
-        <InsertEmoticonIcon />
+        <InsertEmoticon />
         <Input value={input} onChange={(e) => setInput(e.target.value)} />
         <button hidden disabled={!input} type='submit' onClick={sendMessage}>
           Send Message
         </button>
-        <MicIcon />
+        <Mic />
       </InputContainer>
     </Container>
   );
 };
 
 export default ChatScreen;
+
+const Container = styled.div``;
+
+const Input = styled.input`
+  flex: 1;
+  outline: 0;
+  border: none;
+  border-radius: 10px;
+  padding: 20px;
+  background-color: whitesmoke;
+  margin-left: 15px;
+  margin-right: 15px;
+`;
+
+const InputContainer = styled.form`
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  position: sticky;
+  bottom: 0;
+  background-color: white;
+  z-index: 100;
+`;
+
+const Header = styled.div`
+  position: sticky;
+  background-color: white;
+  z-index: 100;
+  top: 0;
+  display: flex;
+  padding: 11px;
+  height: 80px;
+  align-items: center;
+  border-bottom: 1px solid whitesmoke;
+`;
+
+const HeaderInformation = styled.div`
+  margin-left: 15px;
+  flex: 1;
+  > h3 {
+    margin-bottom: 3px;
+  }
+  > p {
+    font-size: 14px;
+    color: gray;
+  }
+`;
+
+const EndOfMessage = styled.div`
+  margin-bottom: 50px;
+`;
+
+const HeaderIcons = styled.div``;
+
+const MessageContainer = styled.div`
+  padding: 30px;
+  background-color: #e5ded8;
+  min-height: 90vh;
+`;
